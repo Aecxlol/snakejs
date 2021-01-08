@@ -6,7 +6,7 @@ class Snake {
         this.snakeShape         = null;
         this.defaultSnakeWidth  = 10;
         this.defaultSnakeHeight = 10;
-        this.refreshRate = 200;
+        this.refreshRate = 300;
 
         this.keybinds = {
             l: "ArrowLeft",
@@ -129,7 +129,7 @@ class Snake {
             height: this.defaultSnakeHeight,
             color: 'black',
 
-            draw: () => {
+            drawSnake: () => {
                 this.ctx.beginPath();
                 this.ctx.rect(this.snakeShape.x, this.snakeShape.y, this.snakeShape.width, this.snakeShape.height);
                 this.ctx.fillStyle = this.snakeShape.color;
@@ -138,7 +138,9 @@ class Snake {
             },
 
             updateCanvas: (direction) => {
-                this.snakeShape.draw();
+                // clear the trail left by the snake
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.snakeShape.drawSnake();
                 switch (direction) {
                     // LEFT : X AXIS
                     case "l":
@@ -146,7 +148,12 @@ class Snake {
                             // stop the interval of the previous move
                             clearInterval(this.interval[this.direction[this.movesCount - 2]]);
                         }
-                        this.snakeShape.x -= this.defaultSnakeWidth;
+
+                        if(this.snakeShape.x > -this.defaultSnakeWidth && this.snakeShape.x < this.canvas.width) {
+                            this.snakeShape.x -= this.defaultSnakeWidth;
+                        }else {
+                            this._endTheGame();
+                        }
                         break;
 
                     // RIGHT : X AXIS
@@ -155,7 +162,12 @@ class Snake {
                             // stop the interval of the previous move
                             clearInterval(this.interval[this.direction[this.movesCount - 2]]);
                         }
-                        this.snakeShape.x += this.defaultSnakeWidth;
+
+                        if(this.snakeShape.x > -this.defaultSnakeWidth && this.snakeShape.x < this.canvas.width) {
+                            this.snakeShape.x += this.defaultSnakeWidth;
+                        }else {
+                            this._endTheGame();
+                        }
                         break;
 
                     // TOP : Y AXIS
@@ -164,7 +176,12 @@ class Snake {
                             // stop the interval of the previous move
                             clearInterval(this.interval[this.direction[this.movesCount - 2]]);
                         }
-                        this.snakeShape.y -= this.defaultSnakeHeight;
+
+                        if(this.snakeShape.y > -this.defaultSnakeHeight && this.snakeShape.y < this.canvas.height) {
+                            this.snakeShape.y -= this.defaultSnakeHeight;
+                        }else {
+                            this._endTheGame();
+                        }
                         break;
 
                     // BOTTOM : Y AXIS
@@ -173,12 +190,24 @@ class Snake {
                             // stop the interval of the previous move
                             clearInterval(this.interval[this.direction[this.movesCount - 2]]);
                         }
-                        this.snakeShape.y += this.defaultSnakeHeight;
+
+                        if(this.snakeShape.y > -this.defaultSnakeHeight && this.snakeShape.y < this.canvas.height) {
+                            this.snakeShape.y += this.defaultSnakeHeight;
+                        }else {
+                            this._endTheGame();
+                        }
                         break;
                 }
             }
         };
 
-        this.snakeShape.draw();
+        this.snakeShape.drawSnake();
+    }
+
+    _endTheGame() {
+        // stop the interval of the last move
+        clearInterval(this.interval[this.direction[this.movesCount - 1]]);
+        console.log("game over");
+        return true;
     }
 }
