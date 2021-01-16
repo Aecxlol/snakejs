@@ -34,18 +34,14 @@ class Snake {
             b: null
         }
 
-        this.test = {
-            a: false,
-            b: false
+        this.currentAxis = {
+            x: null,
+            y: null
         }
 
-        Object.keys(this.test).map((k, v) => {
-            this.test[k] = true;
-        })
-        console.log(this.test);
         this.direction = [];
         this.hasDirectionChanged = false;
-        console.log(Object.keys(this.interval));
+
         // each time a key is pressed, this var will increase by 1
         this.movesCount = 0;
 
@@ -86,59 +82,72 @@ class Snake {
                     // prevent the x axis to still iterate
                     // if the key is pressed twice or more
                     if(!this.keybindsPressed.l){
-                        this.movesCount += 1;
-                        if(this.movesCount >= 1) {
-                            this.hasDirectionChanged = true;
-                            this.direction.push('l');
+                        // prevent the user from being able to press
+                        // the left direction whereas the the right one is the current one
+                        if(!this.currentAxis.x) {
+                            this.movesCount += 1;
+                            if(this.movesCount >= 1) {
+                                this.hasDirectionChanged = true;
+                                this.direction.push('l');
+                            }
+                            this.interval.l = setInterval(() => {
+                                this.snakeShape.updateCanvas("l")
+                            }, this.refreshRate);
                         }
-                        this.interval.l = setInterval(() => {
-                            this.snakeShape.updateCanvas("l")
-                        }, this.refreshRate);
                     }
                 break;
 
                 case this.keybinds.r:
                     if(!this.keybindsPressed.r){
-                        this.movesCount += 1;
-                        if(this.movesCount >= 1) {
-                            this.hasDirectionChanged = true;
-                            this.direction.push('r');
+                        if(!this.currentAxis.x) {
+                            this.movesCount += 1;
+                            if(this.movesCount >= 1) {
+                                this.hasDirectionChanged = true;
+                                this.direction.push('r');
+                            }
+                            this.interval.r = setInterval(() => {
+                                this.snakeShape.updateCanvas("r")
+                            }, this.refreshRate);
                         }
-                        this.interval.r = setInterval(() => {
-                            this.snakeShape.updateCanvas("r")
-                        }, this.refreshRate);
                     }
                 break;
 
                 case this.keybinds.t:
                     if(!this.keybindsPressed.t){
-                        this.movesCount += 1;
-                        if(this.movesCount >= 1) {
-                            this.hasDirectionChanged = true;
-                            this.direction.push('t');
+                        if(!this.currentAxis.y) {
+                            this.movesCount += 1;
+                            if(this.movesCount >= 1) {
+                                this.hasDirectionChanged = true;
+                                this.direction.push('t');
+                            }
+                            this.interval.t = setInterval(() => {
+                                this.snakeShape.updateCanvas("t")
+                            }, this.refreshRate);
                         }
-                        this.interval.t = setInterval(() => {
-                            this.snakeShape.updateCanvas("t")
-                        }, this.refreshRate);
                     }
                 break;
 
                 case this.keybinds.b:
                     if(!this.keybindsPressed.b){
-                        this.movesCount += 1;
-                        if(this.movesCount >= 1) {
-                            this.hasDirectionChanged = true;
-                            this.direction.push('b');
+                        if(!this.currentAxis.y) {
+                            this.movesCount += 1;
+                            if(this.movesCount >= 1) {
+                                this.hasDirectionChanged = true;
+                                this.direction.push('b');
+                            }
+                            this.interval.b = setInterval(() => {
+                                this.snakeShape.updateCanvas("b")
+                            }, this.refreshRate);
                         }
-                        this.interval.b = setInterval(() => {
-                            this.snakeShape.updateCanvas("b")
-                        }, this.refreshRate);
                     }
                 break;
             }
         });
     }
 
+    /**
+     *
+     */
     setTheSnakeShape() {
         this.snakeShape = {
             x: (this.canvas.width / 2) - (this.defaultSnakeWidth / 2),
@@ -147,6 +156,9 @@ class Snake {
             height: this.defaultSnakeHeight,
             color: 'black',
 
+            /**
+             *
+             */
             drawSnake: () => {
                 this.ctx.beginPath();
                 this.ctx.rect(this.snakeShape.x, this.snakeShape.y, this.snakeShape.width, this.snakeShape.height);
@@ -155,6 +167,10 @@ class Snake {
                 this.ctx.closePath();
             },
 
+            /**
+             *
+             * @param direction
+             */
             updateCanvas: (direction) => {
                 // clear the trail left by the snake
                 // this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -164,6 +180,8 @@ class Snake {
                     // LEFT : X AXIS
                     case "l":
                         this.snakeShape.resetKeys("l");
+                        this.currentAxis.x = true;
+                        this.currentAxis.y = false;
                         // if it's not the first move
                         if(this.movesCount > 1) {
                             // stop the interval of the previous move
@@ -182,6 +200,8 @@ class Snake {
                     // RIGHT : X AXIS
                     case "r":
                         this.snakeShape.resetKeys("r");
+                        this.currentAxis.x = true;
+                        this.currentAxis.y = false;
                         if(this.movesCount > 1) {
                             // stop the interval of the previous move
                             clearInterval(this.interval[this.direction[this.movesCount - 2]]);
@@ -198,6 +218,8 @@ class Snake {
                     // TOP : Y AXIS
                     case "t":
                         this.snakeShape.resetKeys("t");
+                        this.currentAxis.y = true;
+                        this.currentAxis.x = false;
                         if(this.movesCount > 1) {
                             // stop the interval of the previous move
                             clearInterval(this.interval[this.direction[this.movesCount - 2]]);
@@ -213,6 +235,8 @@ class Snake {
                     // BOTTOM : Y AXIS
                     case "b":
                         this.snakeShape.resetKeys("b");
+                        this.currentAxis.y = true;
+                        this.currentAxis.x = false;
                         if(this.movesCount > 1) {
                             // stop the interval of the previous move
                             clearInterval(this.interval[this.direction[this.movesCount - 2]]);
@@ -226,6 +250,10 @@ class Snake {
                         break;
                 }
             },
+            /**
+             *
+             * @param key
+             */
             resetKeys: (key) => {
                 // set all the keys pressed at false but the pressed one (key)
                 Object.keys(this.keybindsPressed).map((k, v) => {
