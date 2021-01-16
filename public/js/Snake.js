@@ -34,6 +34,15 @@ class Snake {
             b: null
         }
 
+        this.test = {
+            a: false,
+            b: false
+        }
+
+        Object.keys(this.test).map((k, v) => {
+            this.test[k] = true;
+        })
+        console.log(this.test);
         this.direction = [];
         this.hasDirectionChanged = false;
         console.log(Object.keys(this.interval));
@@ -154,10 +163,7 @@ class Snake {
                 switch (direction) {
                     // LEFT : X AXIS
                     case "l":
-                        this.keybindsPressed.l = true;
-                        this.keybindsPressed.r = false;
-                        this.keybindsPressed.t = false;
-                        this.keybindsPressed.b = false;
+                        this.snakeShape.resetKeys("l");
                         // if it's not the first move
                         if(this.movesCount > 1) {
                             // stop the interval of the previous move
@@ -175,10 +181,7 @@ class Snake {
 
                     // RIGHT : X AXIS
                     case "r":
-                        this.keybindsPressed.l = false;
-                        this.keybindsPressed.r = true;
-                        this.keybindsPressed.t = false;
-                        this.keybindsPressed.b = false;
+                        this.snakeShape.resetKeys("r");
                         if(this.movesCount > 1) {
                             // stop the interval of the previous move
                             clearInterval(this.interval[this.direction[this.movesCount - 2]]);
@@ -194,10 +197,7 @@ class Snake {
 
                     // TOP : Y AXIS
                     case "t":
-                        this.keybindsPressed.l = false;
-                        this.keybindsPressed.r = false;
-                        this.keybindsPressed.t = true;
-                        this.keybindsPressed.b = false;
+                        this.snakeShape.resetKeys("t");
                         if(this.movesCount > 1) {
                             // stop the interval of the previous move
                             clearInterval(this.interval[this.direction[this.movesCount - 2]]);
@@ -212,10 +212,7 @@ class Snake {
 
                     // BOTTOM : Y AXIS
                     case "b":
-                        this.keybindsPressed.l = false;
-                        this.keybindsPressed.r = false;
-                        this.keybindsPressed.t = false;
-                        this.keybindsPressed.b = true;
+                        this.snakeShape.resetKeys("b");
                         if(this.movesCount > 1) {
                             // stop the interval of the previous move
                             clearInterval(this.interval[this.direction[this.movesCount - 2]]);
@@ -228,6 +225,13 @@ class Snake {
                         }
                         break;
                 }
+            },
+            resetKeys: (key) => {
+                // set all the keys pressed at false but the pressed one (key)
+                Object.keys(this.keybindsPressed).map((k, v) => {
+                    this.keybindsPressed[k] =  false;
+                    this.keybindsPressed[key] = true;
+                })
             }
         };
         this.snakeShape.drawSnake();
