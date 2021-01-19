@@ -39,9 +39,15 @@ class Snake {
             y: null
         }
 
+        this.currentFoodPos = {
+            x: null,
+            y: null
+        }
+
         this.direction           = [];
         this.hasDirectionChanged = false;
-        console.log((Math.floor(Math.random() * 10) * 10) + (Math.floor(Math.random() * 10) * ((this.canvas.width / 10) - 10)));
+        this.foodHasSpawned = false;
+
         // each time a key is pressed, this var will increase by 1
         this.movesCount = 0;
         this.init();
@@ -173,9 +179,13 @@ class Snake {
              * @param direction
              */
             updateCanvas: (direction) => {
-                // clear the trail left by the snake
-                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                // clear the trail left by the snake and let the food displayed
+                this.ctx.clearRect(0, 0, this.canvas.width, this.currentFoodPos.y ? this.currentFoodPos.y : this.canvas.height);
+                this.ctx.clearRect(0, this.currentFoodPos.y ? this.currentFoodPos.y : 0, this.currentFoodPos.x ? this.currentFoodPos.x : this.canvas.width, this.defaultSnakeHeight);
+                this.ctx.clearRect(this.currentFoodPos.x ? this.currentFoodPos.x + this.defaultSnakeWidth : 0, this.currentFoodPos.y ? this.currentFoodPos.y : 0, this.currentFoodPos.x ? this.canvas.width - this.currentFoodPos.x + this.defaultSnakeWidth : this.canvas.width, this.currentFoodPos.y ? this.currentFoodPos.y + this.defaultSnakeHeight : this.canvas.height);
+                this.ctx.clearRect(0, this.currentFoodPos.y ? this.currentFoodPos.y + this.defaultSnakeHeight : 0, this.canvas.width, this.currentFoodPos.y ? this.canvas.height - this.currentFoodPos.y + this.defaultSnakeHeight : this.canvas.height);
                 this.snakeShape.drawSnake();
+                this.snakeShape.generateFood();
                 switch (direction) {
                     // LEFT : X AXIS
                     case "l":
@@ -264,11 +274,15 @@ class Snake {
             },
 
             generateFood: () => {
-                this.ctx.beginPath();
-                this.ctx.rect(this._generateRandomPosition()['x'], this._generateRandomPosition()['y'], this.snakeShape.width, this.snakeShape.height);
-                this.ctx.fillStyle = this.snakeShape.foodColor;
-                this.ctx.fill();
-                this.ctx.closePath();
+                if(!this.foodHasSpawned){
+                    this.ctx.beginPath();
+                    // store at the same time the food position
+                    this.ctx.rect(this.currentFoodPos.x = this._generateRandomPosition()['x'], this.currentFoodPos.y = this._generateRandomPosition()['y'], this.snakeShape.width, this.snakeShape.height);
+                    this.ctx.fillStyle = this.snakeShape.foodColor;
+                    this.ctx.fill();
+                    this.ctx.closePath();
+                    this.foodHasSpawned = true;
+                }
             }
         };
         this.snakeShape.drawSnake();
