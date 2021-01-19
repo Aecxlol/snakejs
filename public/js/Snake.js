@@ -300,8 +300,8 @@ class Snake {
         }
 
         // rands a number between 1 and 10 - multiplies it by the size of the snake - adds a random number between 100 and the canvas size minus the size fo the snake
-        random.x = (Math.floor(Math.random() * 10) * this.defaultSnakeWidth) + (Math.floor(Math.random() * 10) * ((this.canvas.width / 10) - this.defaultSnakeWidth))
-        random.y = (Math.floor(Math.random() * 10) * this.defaultSnakeHeight) + (Math.floor(Math.random() * 10) * ((this.canvas.height / 10) - this.defaultSnakeHeight))
+        random.x = (Math.floor(Math.random() * 10) * (this.defaultSnakeWidth / 2)) + (Math.floor(Math.random() * 10) * ((this.canvas.width / 10) - (this.defaultSnakeWidth / 2)))
+        random.y = (Math.floor(Math.random() * 10) * (this.defaultSnakeHeight / 2)) + (Math.floor(Math.random() * 10) * ((this.canvas.height / 10) - (this.defaultSnakeHeight / 2)))
 
         return random;
     }
