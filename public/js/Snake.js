@@ -179,9 +179,11 @@ class Snake {
              * @param direction
              */
             updateCanvas: (direction) => {
+                let x = 0;
+                let y = 0;
                 // store every x and y position
-                this.positionHistory[0][this.pos] = this.snakeShape.x;
-                this.positionHistory[1][this.pos] = this.snakeShape.y;
+                this.positionHistory[x][this.pos] = this.snakeShape.x;
+                this.positionHistory[y][this.pos] = this.snakeShape.y;
                 this.pos++;
 
                 // allows the snake to grow each time a food has been eaten
@@ -192,7 +194,7 @@ class Snake {
                     for (let i = 0; i < this.positionHistory.length; i++) {
                         // each time a food has been eaten, delete the previous x and y position minus the food eaten (1)
                         // if no food has been eaten, only delete the previous position then the snake will only be its default size (10*10)
-                        this.ctx.clearRect(this.positionHistory[0][xIndex - this.foodEaten], this.positionHistory[1][yIndex - this.foodEaten], this.defaultSnakeWidth, this.defaultSnakeHeight)
+                        this.ctx.clearRect(this.positionHistory[x][xIndex - this.foodEaten], this.positionHistory[y][yIndex - this.foodEaten], this.defaultSnakeWidth, this.defaultSnakeHeight)
                     }
                 }
 
