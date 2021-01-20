@@ -6,9 +6,9 @@ class Snake {
         this.snakeShape         = null;
         this.defaultSnakeWidth  = 10;
         this.defaultSnakeHeight = 10;
-        this.refreshRate        = 100;
+        this.refreshRate        = 70;
         this.foodEaten          = 0;
-        this.pos = 0;
+        this.pos                = 0;
 
         this.keybinds = {
             l: "ArrowLeft",
@@ -46,12 +46,12 @@ class Snake {
             y: null
         }
 
-        this.direction           = [];
+        this.direction       = [];
         this.positionHistory = [
             [],
             [],
         ];
-        this.foodHasSpawned      = false;
+        this.foodHasSpawned  = false;
 
         // each time a key is pressed, this var will increase by 1
         this.movesCount = 0;
@@ -184,11 +184,12 @@ class Snake {
                 this.positionHistory[1][this.pos] = this.snakeShape.y;
                 this.pos++;
 
-                if(this.pos > 1) {
+                // allows the snake to grow each time a food has been eaten
+                if (this.pos > 1) {
                     // get the previous x and y value
                     let xIndex = this.pos - 2;
                     let yIndex = this.pos - 2;
-                    for(let i = 0; i < this.positionHistory.length; i++){
+                    for (let i = 0; i < this.positionHistory.length; i++) {
                         // each time a food has been eaten, delete the previous x and y position minus the food eaten (1)
                         // if no food has been eaten, only delete the previous position then the snake will only be its default size (10*10)
                         this.ctx.clearRect(this.positionHistory[0][xIndex - this.foodEaten], this.positionHistory[1][yIndex - this.foodEaten], this.defaultSnakeWidth, this.defaultSnakeHeight)
