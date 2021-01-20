@@ -180,7 +180,7 @@ class Snake {
              */
             updateCanvas: (direction) => {
                 let x = 0;
-                let y = 0;
+                let y = 1;
                 // store every x and y position
                 this.positionHistory[x][this.pos] = this.snakeShape.x;
                 this.positionHistory[y][this.pos] = this.snakeShape.y;
@@ -191,11 +191,9 @@ class Snake {
                     // get the previous x and y value
                     let xIndex = this.pos - 2;
                     let yIndex = this.pos - 2;
-                    for (let i = 0; i < this.positionHistory.length; i++) {
-                        // each time a food has been eaten, delete the previous x and y position minus the food eaten (1)
-                        // if no food has been eaten, only delete the previous position then the snake will only be its default size (10*10)
-                        this.ctx.clearRect(this.positionHistory[x][xIndex - this.foodEaten], this.positionHistory[y][yIndex - this.foodEaten], this.defaultSnakeWidth, this.defaultSnakeHeight)
-                    }
+                    // each time a food has been eaten, delete the previous x and y position minus the food eaten (1)
+                    // if no food has been eaten, only delete the previous position then the snake will only be its default size (10*10)
+                    this.ctx.clearRect(this.positionHistory[x][xIndex - this.foodEaten], this.positionHistory[y][yIndex - this.foodEaten], this.defaultSnakeWidth, this.defaultSnakeHeight)
                 }
 
                 this.snakeShape.drawSnake();
