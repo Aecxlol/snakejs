@@ -194,6 +194,14 @@ class Snake {
                     // each time a food has been eaten, delete the previous x and y position minus the food eaten (1)
                     // if no food has been eaten, only delete the previous position then the snake will only be its default size (10*10)
                     this.ctx.clearRect(this.positionHistory[x][xIndex - this.foodEaten], this.positionHistory[y][yIndex - this.foodEaten], this.defaultSnakeWidth, this.defaultSnakeHeight)
+                    // get the food count to know the size fo the snake
+                    for(let i = 0; i < this.foodEaten; i++) {
+                        // compare the current position of the snake's head (this.snakeShape.x) to the last values of x and y and by taking in consideration the size of the snake
+                        // and if the snaake hit his taail, then end the game
+                        if(this.snakeShape.x === this.positionHistory[x][this.positionHistory[x].length - 2 - i] && this.snakeShape.y === this.positionHistory[y][this.positionHistory[y].length - 2 - i]){
+                            this._endTheGame();
+                        }
+                    }
                 }
 
                 this.snakeShape.drawSnake();
