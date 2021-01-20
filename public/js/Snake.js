@@ -8,6 +8,7 @@ class Snake {
         this.defaultSnakeHeight = 10;
         this.refreshRate        = 100;
         this.foodEaten          = 0;
+        this.pos = 0;
 
         this.keybinds = {
             l: "ArrowLeft",
@@ -46,7 +47,10 @@ class Snake {
         }
 
         this.direction           = [];
-        this.hasDirectionChanged = false;
+        this.positionHistory = [
+            [],
+            [],
+        ];
         this.foodHasSpawned      = false;
 
         // each time a key is pressed, this var will increase by 1
@@ -175,11 +179,21 @@ class Snake {
              * @param direction
              */
             updateCanvas: (direction) => {
-                // clear the trail left by the snake and let the food displayed
-                this.ctx.clearRect(0, 0, this.canvas.width, this.currentFoodPos.y ? this.currentFoodPos.y : this.canvas.height);
-                this.ctx.clearRect(0, this.currentFoodPos.y ? this.currentFoodPos.y : 0, this.currentFoodPos.x ? this.currentFoodPos.x : this.canvas.width, this.defaultSnakeHeight);
-                this.ctx.clearRect(this.currentFoodPos.x ? this.currentFoodPos.x + this.defaultSnakeWidth : 0, this.currentFoodPos.y ? this.currentFoodPos.y : 0, this.currentFoodPos.x ? this.canvas.width - this.currentFoodPos.x + this.defaultSnakeWidth : this.canvas.width, this.currentFoodPos.y ? this.currentFoodPos.y + this.defaultSnakeHeight : this.canvas.height);
-                this.ctx.clearRect(0, this.currentFoodPos.y ? this.currentFoodPos.y + this.defaultSnakeHeight : 0, this.canvas.width, this.currentFoodPos.y ? this.canvas.height - this.currentFoodPos.y + this.defaultSnakeHeight : this.canvas.height);
+                // store every x and y position
+                this.positionHistory[0][this.pos] = this.snakeShape.x;
+                this.positionHistory[1][this.pos] = this.snakeShape.y;
+                this.pos++;
+
+                if(this.pos > 1) {
+                    // get the previous x and y value
+                    let xIndex = this.pos - 2;
+                    let yIndex = this.pos - 2;
+                    for(let i = 0; i < this.positionHistory.length; i++){
+                        // each time a food has been eaten, delete the previous x and y position minus the food eaten (1)
+                        // if no food has been eaten, only delete the previous position then the snake will only be its default size (10*10)
+                        this.ctx.clearRect(this.positionHistory[0][xIndex - this.foodEaten], this.positionHistory[1][yIndex - this.foodEaten], this.defaultSnakeWidth, this.defaultSnakeHeight)
+                    }
+                }
 
                 this.snakeShape.drawSnake();
                 this.snakeShape.generateFood();
