@@ -4,9 +4,10 @@ class Snake {
         this.playBtn            = document.getElementById('play');
         this.ctx                = null;
         this.snakeShape         = null;
+        this.isGameOver         = false;
         this.defaultSnakeWidth  = 10;
         this.defaultSnakeHeight = 10;
-        this.refreshRate        = 70;
+        this.refreshRate        = 50;
         this.foodEaten          = 0;
         this.pos                = 0;
 
@@ -16,11 +17,6 @@ class Snake {
             t: "ArrowUp",
             b: "ArrowDown"
         };
-
-        this.lastPosition = {
-            x: null,
-            y: null
-        }
 
         this.interval = {
             l: null,
@@ -51,10 +47,19 @@ class Snake {
             [],
             [],
         ];
-        this.foodHasSpawned  = false;
 
+        this.snakePosition  = [
+            [],
+            []
+        ]
+        this.foodHasSpawned = false;
         // each time a key is pressed, this var will increase by 1
-        this.movesCount = 0;
+        this.movesCount     = 0;
+
+        this.slotsAvailable = [
+            [],
+            []
+        ];
         this.init();
     }
 
@@ -81,6 +86,7 @@ class Snake {
 
     startTheGame() {
         this.playBtn.classList.add('active');
+        // this.drawCheckerboard();
         // Draw the default shape of the snake
         this.setTheSnakeShape();
         this.snakeShape.generateFood();
@@ -181,10 +187,17 @@ class Snake {
             updateCanvas: (direction) => {
                 let x = 0;
                 let y = 1;
+
                 // store every x and y position
                 this.positionHistory[x][this.pos] = this.snakeShape.x;
                 this.positionHistory[y][this.pos] = this.snakeShape.y;
+                this.snakePosition[x].push(this.snakeShape.x);
+                this.snakePosition[y].push(this.snakeShape.y);
                 this.pos++;
+
+                // store the snake position into an array
+                this.snakePosition[x].splice(0, this.snakePosition[x].length - 1 - this.foodEaten);
+                this.snakePosition[y].splice(0, this.snakePosition[y].length - 1 - this.foodEaten);
 
                 // allows the snake to grow each time a food has been eaten
                 if (this.pos > 1) {
@@ -195,12 +208,27 @@ class Snake {
                     // if no food has been eaten, only delete the previous position then the snake will only be its default size (10*10)
                     this.ctx.clearRect(this.positionHistory[x][xIndex - this.foodEaten], this.positionHistory[y][yIndex - this.foodEaten], this.defaultSnakeWidth, this.defaultSnakeHeight)
                     // get the food count to know the size fo the snake
-                    for(let i = 0; i < this.foodEaten; i++) {
+                    for (let i = 0; i < this.foodEaten; i++) {
                         // compare the current position of the snake's head (this.snakeShape.x) to the last values of x and y and by taking in consideration the size of the snake
-                        // and if the snaake hit his taail, then end the game
-                        if(this.snakeShape.x === this.positionHistory[x][this.positionHistory[x].length - 2 - i] && this.snakeShape.y === this.positionHistory[y][this.positionHistory[y].length - 2 - i]){
+                        // and if the snake hit his tail, then end the game
+                        if (this.snakeShape.x === this.positionHistory[x][this.positionHistory[x].length - 2 - i] && this.snakeShape.y === this.positionHistory[y][this.positionHistory[y].length - 2 - i]) {
                             this._endTheGame();
                         }
+                    }
+                }
+
+                // set all the slots available to 0
+                for (let xAxis = 0; xAxis < this.canvas.width; xAxis += this.defaultSnakeWidth) {
+                    this.slotsAvailable[xAxis] = [];
+                    for (let yAxis = 0; yAxis < this.canvas.height; yAxis += this.defaultSnakeHeight) {
+                        this.slotsAvailable[xAxis][yAxis] = 0;
+                    }
+                }
+
+                // set the slots where the snake is to 1
+                if (this.snakeShape.x < this.canvas.width && this.snakeShape.x >= 0) {
+                    for (let i = 0; i < this.snakePosition[x].length; i++) {
+                        this.slotsAvailable[this.snakePosition[x][i]][this.snakePosition[y][i]] = 1;
                     }
                 }
 
@@ -228,7 +256,7 @@ class Snake {
                         }
 
                         // if the snake doesn't hit the edge of the canvas
-                        if (this.snakeShape.x > -this.defaultSnakeWidth && this.snakeShape.x < this.canvas.width) {
+                        if (this.snakeShape.x >= 0 && this.snakeShape.x < this.canvas.width) {
                             //make it move
                             this.snakeShape.x -= this.defaultSnakeWidth;
                         } else {
@@ -254,7 +282,7 @@ class Snake {
                             clearInterval(this.interval[this.direction[this.movesCount - 2]]);
                         }
 
-                        if (this.snakeShape.x > -this.defaultSnakeWidth && this.snakeShape.x < this.canvas.width) {
+                        if (this.snakeShape.x >= 0 && this.snakeShape.x < this.canvas.width) {
                             this.snakeShape.x += this.defaultSnakeWidth;
                         } else {
                             this._endTheGame();
@@ -279,7 +307,7 @@ class Snake {
                             clearInterval(this.interval[this.direction[this.movesCount - 2]]);
                         }
 
-                        if (this.snakeShape.y > -this.defaultSnakeHeight && this.snakeShape.y < this.canvas.height) {
+                        if (this.snakeShape.y >= 0 && this.snakeShape.y < this.canvas.height) {
                             this.snakeShape.y -= this.defaultSnakeHeight;
                         } else {
                             this._endTheGame();
@@ -304,7 +332,7 @@ class Snake {
                             clearInterval(this.interval[this.direction[this.movesCount - 2]]);
                         }
 
-                        if (this.snakeShape.y > -this.defaultSnakeHeight && this.snakeShape.y < this.canvas.height) {
+                        if (this.snakeShape.y >= 0 && this.snakeShape.y < this.canvas.height) {
                             this.snakeShape.y += this.defaultSnakeHeight;
                         } else {
                             this._endTheGame();
@@ -328,7 +356,7 @@ class Snake {
             generateFood: () => {
                 if (!this.foodHasSpawned) {
                     this.ctx.beginPath();
-                    // store at the same time the food position
+                    // spawn a new food and store its position at the same time
                     this.ctx.rect(this.currentFoodPos.x = this._generateRandomPosition()['x'], this.currentFoodPos.y = this._generateRandomPosition()['y'], this.snakeShape.width, this.snakeShape.height);
                     this.ctx.fillStyle = this.snakeShape.foodColor;
                     this.ctx.fill();
@@ -341,8 +369,19 @@ class Snake {
     }
 
     /**
-     * Generate a random position for the food to spawn
-     * @returns {{x: null, y: null}}
+     * Generates a random number which is a multiple of 10
+     * @param min
+     * @param max
+     * @returns {number}
+     * @private
+     */
+    _getRandomNumber(min, max) {
+        return (Math.round(Math.random() * (max - min) + min)) * 10;
+    }
+
+    /**
+     * Generates a random position for the food to spawn
+     * @returns {{x: null, y: null}|*}
      * @private
      */
     _generateRandomPosition() {
@@ -351,16 +390,50 @@ class Snake {
             y: null
         }
 
-        // rands a number between 1 and 10 - multiplies it by the size of the snake - adds a random number between 100 and the canvas size minus the size fo the snake
-        random.x = (Math.floor(Math.random() * 10) * (this.defaultSnakeWidth)) + (Math.floor(Math.random() * 10) * ((this.canvas.width / 10) - (this.defaultSnakeWidth)))
-        random.y = (Math.floor(Math.random() * 10) * (this.defaultSnakeHeight)) + (Math.floor(Math.random() * 10) * ((this.canvas.height / 10) - (this.defaultSnakeHeight)))
-        return random;
+        random.x = this._getRandomNumber(0, (this.canvas.width - this.defaultSnakeWidth) / 10);
+        random.y = this._getRandomNumber(0, (this.canvas.height - this.defaultSnakeHeight) / 10);
+
+        if (this.pos === 0) {
+            if (random.x !== this.snakeShape.x && random.y !== this.snakeShape.y) {
+                return random;
+            } else {
+                return this._generateRandomPosition();
+            }
+        } else {
+            // checks the snake's position if it doesn't match with the random position
+            if (this.slotsAvailable[random.x][random.y] === 1) {
+                return this._generateRandomPosition();
+            } else {
+                return random;
+            }
+        }
     }
+
+    // drawCheckerboard() {
+    //     for(let i = 0; i < this.canvas.width; i+=this.defaultSnakeWidth){
+    //
+    //             this.ctx.beginPath();
+    //             this.ctx.moveTo(i, 0);
+    //
+    //             this.ctx.lineTo(i, this.canvas.height);
+    //
+    //             this.ctx.stroke();
+    //
+    //     }
+    //
+    //     for(let j = 0; j < this.canvas.height; j+=this.defaultSnakeHeight) {
+    //         this.ctx.beginPath();
+    //         this.ctx.moveTo(0, j);
+    //         this.ctx.lineTo(this.canvas.width, j);
+    //         this.ctx.stroke();
+    //     }
+    // }
 
     _endTheGame() {
         // stop the interval of the last move
         clearInterval(this.interval[this.direction[this.movesCount - 1]]);
-        console.log("game over");
-        return true;
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.isGameOver = true;
+        return false;
     }
 }
