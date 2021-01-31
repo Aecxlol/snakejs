@@ -1,3 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-   new Snake();
+   let storage = {};
+   storage.instance = new Snake();
 });

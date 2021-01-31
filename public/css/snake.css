@@ -27,3 +27,16 @@ button.play-btn{
 button.play-btn.active{
     display: none;
 }
+
+button.retry-btn{
+    position: absolute;
+    display: none;
+}
+
+button.retry-btn.active{
+    display: block;
+}
+
+button.retry-btn.inactive{
+    display: none;
+}
